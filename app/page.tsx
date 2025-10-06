@@ -24,6 +24,9 @@ export default function InteractiveHeatMap() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
     containerRef.current.appendChild(renderer.domElement);
 
     // Interactive heat map shader
