@@ -250,6 +250,36 @@ export default function InteractiveHeatMap() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       <div ref={containerRef} className="absolute inset-0" />
+      
+      {/* SVG Blob Button */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <a 
+          href="#" 
+          className="group relative block transition-transform hover:scale-105 active:scale-95"
+        >
+          <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl">
+            {/* Blob shape */}
+            <path
+              d="M100,20 C140,20 180,60 180,100 C180,140 140,180 100,180 C60,180 20,140 20,100 C20,60 60,20 100,20 Z"
+              fill="rgba(255, 255, 255, 0.95)"
+              className="transition-all duration-300 group-hover:fill-white"
+            />
+            {/* Text */}
+            <text
+              x="100"
+              y="105"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="24"
+              fontWeight="bold"
+              fill="#000"
+              className="pointer-events-none select-none font-sans"
+            >
+              Studio B
+            </text>
+          </svg>
+        </a>
+      </div>
     </div>
   );
 }
