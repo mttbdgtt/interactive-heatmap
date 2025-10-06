@@ -174,10 +174,6 @@ export default function InteractiveHeatMap() {
         
         color += paperTexture;
         
-        // Subtle vignette
-        float vignette = 1.0 - length(p * 0.5) * 0.3;
-        color *= vignette;
-        
         gl_FragColor = vec4(color, 1.0);
       }
     `;
@@ -248,7 +244,7 @@ export default function InteractiveHeatMap() {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="relative w-full h-screen overflow-hidden bg-black m-0 p-0">
       <div ref={containerRef} className="absolute inset-0" />
       
       {/* SVG Blob Button */}
