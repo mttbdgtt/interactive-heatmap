@@ -181,8 +181,9 @@ export default function InteractiveHeatMap() {
       }
     `;
 
-    // Create geometry
-    const geometry = new THREE.PlaneGeometry(10, 10, 128, 128);
+    // Create plane geometry that covers the full viewport
+    const aspect = window.innerWidth / window.innerHeight;
+    const geometry = new THREE.PlaneGeometry(10 * aspect, 10, 128, 128);
     const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
