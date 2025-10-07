@@ -184,7 +184,7 @@ export default function InteractiveHeatMap() {
 
     // Create plane geometry that covers the full viewport
     const aspect = window.innerWidth / window.innerHeight;
-    const geometry = new THREE.PlaneGeometry(10 * aspect, 10, 128, 128);
+    const geometry = new THREE.PlaneGeometry(aspect * 8, 8, 128, 128);
     const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
@@ -208,10 +208,16 @@ export default function InteractiveHeatMap() {
 
     // Resize handler
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const newAspect = window.innerWidth / window.innerHeight;
+      camera.aspect = newAspect;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+      
+      // Update geometry for new aspect ratio
+      const newGeometry = new THREE.PlaneGeometry(newAspect * 8, 8, 128, 128);
+      mesh.geometry.dispose();
+      mesh.geometry = newGeometry;
     };
 
     window.addEventListener('resize', handleResize);
