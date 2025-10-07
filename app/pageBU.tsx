@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 export default function InteractiveHeatMap() {
   const containerRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const targetMouseRef = useRef({ x: 0, y: 0 });
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -253,28 +252,17 @@ export default function InteractiveHeatMap() {
       <div ref={containerRef} className="absolute inset-0" />
       
       {/* SVG Blob Button */}
-      <div 
-        style={{
-          left: showContent ? '-200vw' : '50%',
-          transform: showContent ? 'translate(0, -50%)' : 'translate(-50%, -50%)',
-          transition: 'all 0.7s ease-in-out'
-        }}
-        className="absolute top-1/2 z-10"
-      >
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            console.log('Button clicked!');
-            setShowContent(true);
-          }}
-          className="group relative block transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <a 
+          href="#" 
+          className="group relative block transition-transform hover:scale-105 active:scale-95"
         >
-          <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl pointer-events-auto">
+          <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl">
             {/* Blob shape */}
             <path
               d="M100,20 C140,20 180,60 180,100 C180,140 140,180 100,180 C60,180 20,140 20,100 C20,60 60,20 100,20 Z"
               fill="rgba(255, 255, 255, 0.95)"
-              className="transition-all duration-300 group-hover:fill-white pointer-events-auto"
+              className="transition-all duration-300 group-hover:fill-white"
             />
             {/* Text */}
             <text
@@ -290,38 +278,7 @@ export default function InteractiveHeatMap() {
               Studio B
             </text>
           </svg>
-        </button>
-      </div>
-
-      {/* Content that slides in from right */}
-      <div 
-        style={{
-          left: showContent ? '50%' : '200vw',
-          transform: showContent ? 'translate(-50%, -50%) rotate(-10deg)' : 'translate(0, -50%) rotate(-10deg)',
-          transition: 'all 0.7s ease-in-out',
-          opacity: showContent ? 1 : 0
-        }}
-        className={`absolute top-1/2 z-30 cursor-pointer ${
-          showContent ? 'pointer-events-auto' : 'pointer-events-none'
-        }`}
-        onClick={() => setShowContent(false)}
-      >
-        <div 
-          style={{
-            width: '500px',
-            height: '375px'
-          }}
-          className="bg-black rounded-lg shadow-2xl overflow-hidden flex items-center justify-center"
-        >
-          {/* Replace the src below with your .gif URL */}
-          <img 
-            src="balloons.gif" 
-            alt="Studio B" 
-            className="w-full h-full object-cover"
-          />
-          {/* Or keep the placeholder text by commenting out the img above */}
-          {/* <span className="text-white text-sm">500 × 375</span> */}
-        </div>
+        </a>
       </div>
     </div>
   );
