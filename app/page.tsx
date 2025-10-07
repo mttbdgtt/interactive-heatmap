@@ -315,7 +315,7 @@ export default function InteractiveHeatMap() {
         >
           {/* Replace the src below with your .gif URL */}
           <img 
-            src="balloons.gif" 
+            src="images/balloons.gif" 
             alt="Studio B" 
             className="w-full h-full object-cover"
           />
