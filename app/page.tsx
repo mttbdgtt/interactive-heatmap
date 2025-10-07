@@ -306,21 +306,13 @@ export default function InteractiveHeatMap() {
         }`}
         onClick={() => setShowContent(false)}
       >
-        <div 
-          style={{
-            width: '500px',
-            height: '375px'
-          }}
-          className="bg-black rounded-lg shadow-2xl overflow-hidden flex items-center justify-center"
-        >
-          {/* Replace the src below with your .gif URL */}
+        <div className="bg-black rounded-lg shadow-2xl overflow-hidden flex items-center justify-center w-[300px] h-[225px] sm:w-[400px] sm:h-[300px] md:w-[500px] md:h-[375px]">
+          {/* For Next.js: put your gif in the public folder, then reference from root */}
           <img 
             src="images/balloons.gif" 
             alt="Studio B" 
             className="w-full h-full object-cover"
           />
-          {/* Or keep the placeholder text by commenting out the img above */}
-          {/* <span className="text-white text-sm">500 × 375</span> */}
         </div>
       </div>
     </div>
