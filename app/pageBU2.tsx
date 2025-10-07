@@ -8,8 +8,6 @@ export default function InteractiveHeatMap() {
   const mouseRef = useRef({ x: 0, y: 0 });
   const targetMouseRef = useRef({ x: 0, y: 0 });
   const [showContent, setShowContent] = useState(false);
-  const [buttonScale, setButtonScale] = useState(1);
-  const buttonRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -204,23 +202,6 @@ export default function InteractiveHeatMap() {
     const handleMouseMove = (e) => {
       targetMouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
       targetMouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      
-      // Calculate button scale based on mouse proximity
-      if (!showContent && buttonRef.current) {
-        const buttonRect = buttonRef.current.getBoundingClientRect();
-        const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-        const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-        
-        const distance = Math.sqrt(
-          Math.pow(e.clientX - buttonCenterX, 2) + 
-          Math.pow(e.clientY - buttonCenterY, 2)
-        );
-        
-        // Scale from 1.0 to 1.25 based on distance (closer = bigger)
-        const maxDistance = 300; // pixels
-        const scale = Math.max(1, Math.min(1.25, 1.25 - (distance / maxDistance) * 0.25));
-        setButtonScale(scale);
-      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -279,13 +260,10 @@ export default function InteractiveHeatMap() {
       
       {/* SVG Blob Button */}
       <div 
-        ref={buttonRef}
         style={{
           left: showContent ? '-200vw' : '50%',
-          transform: showContent 
-            ? 'translate(0, -50%)' 
-            : `translate(-50%, -50%) scale(${buttonScale})`,
-          transition: 'left 0.7s ease-in-out, transform 0.1s ease-out'
+          transform: showContent ? 'translate(0, -50%)' : 'translate(-50%, -50%)',
+          transition: 'all 0.7s ease-in-out'
         }}
         className="absolute top-1/2 z-10"
       >
@@ -295,7 +273,7 @@ export default function InteractiveHeatMap() {
             console.log('Button clicked!');
             setShowContent(true);
           }}
-          className="group relative block active:scale-95 cursor-pointer"
+          className="group relative block transition-transform hover:scale-105 active:scale-95 cursor-pointer"
         >
           <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl pointer-events-auto">
             {/* Blob shape */}
