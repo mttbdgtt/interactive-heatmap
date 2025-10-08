@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Studio B - Experimental Design Studio',
+  title: 'Studio B',
   description: 'Studio B is an experimental design studio exploring the intersection of modern web technologies, design, motion and words.',
   keywords: ['design studio', 'experimental design', 'web design', 'modern web', 'creative studio'],
   authors: [{ name: 'Studio B' }],
