@@ -278,6 +278,17 @@ export default function InteractiveHeatMap() {
     <div className="relative w-full h-screen overflow-hidden bg-black m-0 p-0">
       <div ref={containerRef} className="absolute inset-0" />
       
+      {/* Top Left Info */}
+      <div className="absolute top-8 left-8 z-50 text-white">
+        <p className="text-sm font-semibold mb-4 tracking-wide">NEW SITE COMING SOON</p>
+        <div className="text-xs space-y-1">
+          <p className="font-semibold">CONTACT</p>
+          <a href="mailto:studio@hey.com" className="hover:opacity-70 transition-opacity">
+            studio@hey.com
+          </a>
+        </div>
+      </div>
+      
       {/* SVG Blob Button */}
       <div 
         ref={buttonRef}
