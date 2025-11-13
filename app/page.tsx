@@ -280,7 +280,7 @@ export default function InteractiveHeatMap() {
       
       {/* Top Left Info */}
       <div className="absolute top-8 left-8 z-50 text-white">
-        <p className="text-sm font-semibold mb-4 tracking-wide">NEW SITE COMING SOON</p>
+        <p className="text-sm font-semibold mb-4 tracking-wide">EXPERIMENTING WITH WEB TECHNOLOGIES</p>
         <div className="text-xs space-y-1">
           <p className="font-semibold">CONTACT</p>
           <a href="mailto:studio@hey.com" className="hover:opacity-70 transition-opacity">
