@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lately</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar { display: none; }
+
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: #f0ece4;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ── Fixed logo — always on top of everything ── */
+    #site-logo {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 400;
+      pointer-events: all;
+      cursor: pointer;
+    }
+
+    #site-logo svg {
+      display: block;
+      height: 70px;
+      width: auto;
+    }
+
+    /* ── Header ── */
+    #site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 300;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    #header-contact,
+    #menu-btn {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #111;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+      pointer-events: all;
+    }
+
+    /* ── Menu Overlay ── */
+    #menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 350;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 32px 32px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #menu-overlay.is-open { pointer-events: all; }
+
+    #menu-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #menu-contact,
+    #menu-close {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #111;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    #menu-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex: 1;
+    }
+
+    .menu-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-col-right { text-align: right; }
+
+    .menu-link {
+      font-size: clamp(52px, 7vw, 90px);
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-weight: 400;
+      color: #111;
+      text-decoration: none;
+      line-height: 1.15;
+      display: block;
+      opacity: 0;
+    }
+
+    .menu-link {
+      display: inline-block;
+    }
+
+    .menu-link::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 4px;
+      background: #e85a3c;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-col-right .menu-link::after {
+      left: auto;
+      right: 0;
+    }
+
+    .menu-link:hover::after { width: 100%; }
+    .menu-col-left  .menu-link { transform: translateX(-60px); }
+    .menu-col-right .menu-link { transform: translateX(60px); }
+
+    #menu-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #menu-bottom a {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #111;
+      text-decoration: none;
+      opacity: 0;
+    }
+
+    #menu-bottom a:hover { opacity: 0.4 !important; }
+
+    /* ── Board ── */
+    #board-track { width: 100%; }
+
+    .board-screen {
+      width: 100%;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board-screen.first { padding-top: 80px; }
+
+    .board-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .img-wrap {
+      width: 100%;
+      cursor: grab;
+      transform-origin: center center;
+      will-change: transform;
+      opacity: 0;
+      position: relative;
+      touch-action: none;
+    }
+
+    .img-wrap.is-dragging { cursor: grabbing; z-index: 999; }
+
+    .img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    @media (max-width: 768px) {
+      .board-screen { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Logo — fixed, always on top -->
+<div id="site-logo">
+  <!-- Replace this SVG with your own logo -->
+      <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 123.668 61.722" width="124" height="62">
+        <g data-name="Group 703" fill="#000">
+          <g data-name="Group 701">
+            <path data-name="Path 610" d="M9.909 35.823C4.754 32.604 1 30.195 1 24.905s4.821-9.306 11.717-9.306a23.38 23.38 0 0 1 8.7 1.674c.2 1.272.47 6.227.47 7.9l-.47.133c-4.686-7.029-6.9-8.435-9.239-8.435A3.533 3.533 0 0 0 8.3 20.554c0 2.745 2.075 4.351 5.289 6.292 6.16 3.616 9.842 6.361 9.842 11.382 0 6.161-5.423 9.977-12.655 9.977A26.759 26.759 0 0 1 1 46.465a86.983 86.983 0 0 1-1-9.91l.469-.132c4.821 7.231 8.1 10.511 11.65 10.511a3.728 3.728 0 0 0 4.017-4.018c0-2.812-2.143-4.619-6.227-7.1"></path>
+            <path data-name="Path 611" d="M47.539 16.537v-7.5a3.269 3.269 0 0 0-.8-2.477l-1.942-2.21v-.2L57.046-.001l.2.133c-.134 1.808-.2 4.218-.2 5.022v38.567c0 1.606.267 1.874 1.942 1.874l1.539-.067.068.6-13.388 2.48-.134-.2c.134-.8.2-1.676.268-2.611l.133-1.808-.267-.135c-2.812 2.946-6.16 4.487-9.106 4.487-6.963 0-11.851-6.093-11.851-15.2-.003-9.442 6.357-17.542 15.932-17.542a14.582 14.582 0 0 1 5.357.937m-11.45 14.263c0 8.369 3.883 12.923 8.169 12.923a6.927 6.927 0 0 0 3.281-.8l.133-18.623c0-5.624-2.276-7.3-4.753-7.3-3.549 0-6.83 5.09-6.83 13.793"></path>
+            <path data-name="Path 612" d="m88.516 39.902.2.336c-2.746 5.088-7.164 8.1-12.789 8.1-9.106 0-14.529-7.366-14.529-15.736 0-9.037 6.629-17.14 17.14-17.14 6.294 0 10.378 2.478 10.378 6.093a4.532 4.532 0 0 1-4.353 4.419c-.869 0-1.4-.267-2.476-1.874l-3.748-6.16c-.737-1-1-1.206-1.674-1.206-2.544 0-6.427 4.084-6.427 12.187 0 8.771 5.022 13.86 11.114 13.86a10.15 10.15 0 0 0 7.164-2.881"></path>
+            <path data-name="Path 613" d="M123.669 31.601a16.921 16.921 0 0 1-4.754 12.052 16.083 16.083 0 0 1-11.918 4.687c-10.177 0-16-7.9-16-16.2a16.866 16.866 0 0 1 4.754-11.985 16.082 16.082 0 0 1 11.918-4.688c10.177 0 16 7.9 16 16.137M111.888 43.92c1.34-2.678 1.741-6.762 1.741-11.316 0-8.034-2.477-15.934-6.695-15.934-2.076 0-3.347 1.54-4.151 3.213-1.339 2.678-1.807 6.762-1.807 11.248 0 8.035 2.476 16 6.762 16 2.075 0 3.347-1.609 4.151-3.215"></path>
+          </g>
+          <g data-name="Group 702">
+            <path data-name="Path 614" d="M37.419 56.79h2.575c.943 0 1.751.387 1.751 1.364 0 1.053-.766 1.5-1.717 1.5h-1.427v1.485h.9v.454h-2.082v-.454h.606v-3.9h-.606Zm1.178 2.408h1.372c.8 0 1.169-.353 1.169-1.044 0-.631-.446-.909-1.212-.909h-1.33Z"></path>
+            <path data-name="Path 615" d="m44.9 60.031-.4 1.11h.488v.454H43.52v-.456h.487l1.431-3.9h-.775v-.454h1.684l1.617 4.354h.488v.454h-1.583v-.454h.488l-.4-1.11Zm1.876-.455-.849-2.337-.859 2.332Z"></path>
+            <path data-name="Path 616" d="M54.733 61.139v.454h-1.01l-.084-.143a12.835 12.835 0 0 0-.859-1.625 1.031 1.031 0 0 0-.4-.344h-1v1.658h.9v.454h-2.074v-.454h.611v-3.9h-.606v-.455h2.276c.942 0 1.75.353 1.75 1.33a1.335 1.335 0 0 1-1.161 1.3 1.272 1.272 0 0 1 .184.169 13.343 13.343 0 0 1 .868 1.558Zm-3.349-2.114h1.078c.8 0 1.169-.319 1.169-.908 0-.615-.429-.875-1.144-.875h-1.1Z"></path>
+            <path data-name="Path 617" d="M60.852 56.79v1.557h-.514v-1.1h-1.27v3.9h1.026v.454h-2.629v-.462h1.026v-3.9H57.22v1.1h-.514V56.79Z"></path>
+            <path data-name="Path 618" d="M65.766 57.244v-.455h1.667v.455h-.606v4.352h-.547l-2.315-4.267v3.81h.606v.455h-1.666v-.455h.605v-3.9h-.605v-.455h1.414l2.054 3.787v-3.327Z"></path>
+            <path data-name="Path 619" d="M69.381 61.596v-.457h.606v-3.9h-.606v-.454h3.972v1.221h-.455v-.767h-2.34v1.676h1.364v-.476h.454v1.414h-.454v-.48h-1.363v1.766h2.506v-.934h.455v1.388Z"></path>
+            <path data-name="Path 620" d="M80.299 61.139v.454h-1.01l-.084-.143a12.837 12.837 0 0 0-.859-1.625 1.031 1.031 0 0 0-.4-.344h-1v1.658h.9v.454h-2.074v-.454h.605v-3.9h-.605v-.455h2.28c.943 0 1.751.353 1.751 1.33a1.335 1.335 0 0 1-1.161 1.3 1.272 1.272 0 0 1 .184.169 13.345 13.345 0 0 1 .868 1.556Zm-3.349-2.114h1.078c.8 0 1.169-.319 1.169-.908 0-.615-.429-.875-1.145-.875h-1.1Z"></path>
+            <path data-name="Path 621" d="M85.589 56.657h.454v1.414h-.4l-.034-.084a1.447 1.447 0 0 0-1.364-.875c-.74 0-1 .454-1 .833 0 .455.252.716 1.128.85 1.288.194 1.877.657 1.877 1.5 0 .784-.614 1.431-1.835 1.431a1.848 1.848 0 0 1-1.515-.572v.572h-.454v-1.5h.4l.034.093a1.573 1.573 0 0 0 1.532.951c.926 0 1.228-.48 1.228-.977 0-.446-.193-.757-1.356-.934-1.22-.193-1.649-.657-1.649-1.414a1.423 1.423 0 0 1 1.591-1.288 1.711 1.711 0 0 1 1.364.513Z"></path>
+          </g>
+        </g>
+      </svg>
+</div>
+
+<!-- Header -->
+<header id="site-header">
+  <a href="#" id="header-contact">CONTACT</a>
+  <button id="menu-btn">MENU</button>
+</header>
+
+<!-- Fullscreen Menu Overlay -->
+<div id="menu-overlay">
+  <div id="menu-top">
+    <a href="#" id="menu-contact">CONTACT</a>
+    <button id="menu-close">CLOSE</button>
+  </div>
+
+  <nav id="menu-nav">
+    <div class="menu-col menu-col-left">
+      <a href="#" class="menu-link">Brand</a>
+      <a href="#" class="menu-link">Capabilities</a>
+      <a href="#" class="menu-link">Contact</a>
+    </div>
+    <div class="menu-col menu-col-right">
+      <a href="#" class="menu-link">Interiors</a>
+      <a href="#" class="menu-link">Studio</a>
+      <a href="index.html" class="menu-link">Lately</a>
+    </div>
+  </nav>
+
+  <div id="menu-bottom">
+    <a href="#">News</a>
+    <a href="#">Retrospective</a>
+    <a href="#">Manifesto</a>
+    <a href="#">Careers</a>
+    <a href="#">Inquiries</a>
+  </div>
+</div>
+
+<div id="board-track"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────────────
+  // YOUR IMAGES — put your files in an images/ folder next to index.html
+  // ─────────────────────────────────────────────────────────────────────────
+  const IMAGES = [
+    'images/photo-01.jpg',
+    'images/photo-02.jpg',
+    'images/photo-03.jpg',
+    'images/photo-04.jpg',
+    'images/photo-05.jpg',
+    'images/photo-06.jpg',
+    'images/photo-07.jpg',
+    'images/photo-08.jpg',
+    'images/photo-09.jpg',
+    'images/photo-10.jpg',
+    'images/photo-11.jpg',
+    'images/photo-12.jpg',
+    'images/photo-13.jpg',
+    'images/photo-14.jpg',
+    'images/photo-15.jpg',
+    'images/photo-16.jpg',
+    'images/photo-17.jpg',
+    'images/photo-18.jpg',
+    'images/photo-19.jpg',
+    'images/photo-20.jpg',
+  ];
+  // ─────────────────────────────────────────────────────────────────────────
+
+  gsap.registerPlugin(ScrollTrigger, Draggable);
+
+  const track = document.getElementById('board-track');
+  let screenCount = 0;
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function initInteraction(wrap) {
+    let rotateInterval = null;
+    let rotateDirection = 1;
+    let velX = 0, velY = 0;
+    let lastX = 0, lastY = 0;
+    let lastTime = 0;
+
+    Draggable.create(wrap, {
+      type: 'x,y',
+      zIndexBoost: true,
+      allowNativeTouchScrolling: false,
+      onPress() {
+        wrap.classList.add('is-dragging');
+        rotateDirection *= -1;
+        gsap.to(wrap, { scale: 1.08, duration: 0.2, ease: 'power2.out' });
+
+        rotateInterval = setInterval(() => {
+          const currentRot = parseFloat(wrap.dataset.rot) || 0;
+          const nextRot = currentRot + (rotateDirection * 3);
+          wrap.dataset.rot = nextRot;
+          gsap.to(wrap, { rotate: nextRot, duration: 0.1, ease: 'none', overwrite: true });
+        }, 30);
+
+        lastX = this.pointerX;
+        lastY = this.pointerY;
+        lastTime = Date.now();
+        velX = 0; velY = 0;
+      },
+      onDrag() {
+        const now = Date.now();
+        const dt = now - lastTime || 16;
+        velX = (this.pointerX - lastX) / dt * 16;
+        velY = (this.pointerY - lastY) / dt * 16;
+        lastX = this.pointerX;
+        lastY = this.pointerY;
+        lastTime = now;
+      },
+      onRelease() {
+        wrap.classList.remove('is-dragging');
+        if (rotateInterval) { clearInterval(rotateInterval); rotateInterval = null; }
+        const currentRot = parseFloat(wrap.dataset.rot) || 0;
+        gsap.to(wrap, { scale: 1, rotate: currentRot, duration: 0.35, ease: 'power2.out' });
+
+        const currentX = gsap.getProperty(wrap, 'x');
+        const currentY = gsap.getProperty(wrap, 'y');
+        gsap.to(wrap, {
+          x: currentX + velX * 12,
+          y: currentY + velY * 12,
+          duration: 0.8,
+          ease: 'power3.out'
+        });
+      }
+    });
+  }
+
+  function buildScreen() {
+    const isFirst = screenCount === 0;
+    screenCount++;
+
+    const screen = document.createElement('div');
+    screen.className = isFirst ? 'board-screen first' : 'board-screen';
+
+    const cols = [0, 1, 2, 3].map(() => {
+      const col = document.createElement('div');
+      col.className = 'board-col';
+      screen.appendChild(col);
+      return col;
+    });
+
+    shuffle(IMAGES).forEach((src, i) => {
+      const col = cols[i % 4];
+      const wrap = document.createElement('div');
+      wrap.className = 'img-wrap';
+
+      const rot = rand(-18, 18);
+      wrap.dataset.rot = rot;
+
+      gsap.set(wrap, {
+        rotate: rot,
+        xPercent: rand(-30, 30),
+        yPercent: rand(-30, 30),
+        opacity: 0
+      });
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = isFirst ? 'eager' : 'lazy';
+      img.onload = () => ScrollTrigger.refresh();
+      wrap.appendChild(img);
+
+      initInteraction(wrap);
+      col.appendChild(wrap);
+    });
+
+    track.appendChild(screen);
+
+    if (isFirst) {
+      gsap.to(screen.querySelectorAll('.img-wrap'), {
+        opacity: 1, duration: 0.6, stagger: 0.04, ease: 'power1.out', delay: 0.1
+      });
+    } else {
+      ScrollTrigger.create({
+        trigger: screen,
+        start: 'top 90%',
+        onEnter: () => {
+          gsap.to(screen.querySelectorAll('.img-wrap'), {
+            opacity: 1, duration: 0.5, stagger: 0.03, ease: 'power1.out'
+          });
+        },
+        once: true
+      });
+    }
+  }
+
+  buildScreen();
+  buildScreen();
+  buildScreen();
+
+  function checkScroll() {
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+    if (scrollBottom > docHeight - window.innerHeight * 1.5) {
+      buildScreen();
+      ScrollTrigger.refresh();
+    }
+  }
+
+  function ensureScrollable() {
+    checkScroll();
+    if (document.documentElement.scrollHeight <= window.innerHeight + 100) {
+      setTimeout(ensureScrollable, 300);
+    }
+  }
+
+  window.addEventListener('load', ensureScrollable);
+  window.addEventListener('scroll', checkScroll, { passive: true });
+
+  // ── Menu ──────────────────────────────────────────────────────────────────
+  const overlay    = document.getElementById('menu-overlay');
+  const menuBtn    = document.getElementById('menu-btn');
+  const closeBtn   = document.getElementById('menu-close');
+  const leftLinks  = document.querySelectorAll('.menu-col-left .menu-link');
+  const rightLinks = document.querySelectorAll('.menu-col-right .menu-link');
+  const btmLinks   = document.querySelectorAll('#menu-bottom a');
+
+  const headerContact = document.getElementById('header-contact');
+
+  function resetImageZIndex() {
+    document.querySelectorAll('.img-wrap').forEach(w => w.style.zIndex = '');
+  }
+
+  function openMenu() {
+    resetImageZIndex();
+    overlay.classList.add('is-open');
+    const tl = gsap.timeline();
+    tl.to([headerContact, menuBtn], { opacity: 0, duration: 0.15, ease: 'power1.in' })
+    tl.to(overlay,    { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.05')
+    tl.to(leftLinks,  { opacity: 1, x: 0, duration: 0.5, stagger: 0.07, ease: 'power3.out' }, '-=0.2')
+    tl.to(rightLinks, { opacity: 1, x: 0, duration: 0.5, stagger: 0.07, ease: 'power3.out' }, '<')
+    tl.to(btmLinks,   { opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power1.out' }, '-=0.2');
+  }
+
+  function closeMenu() {
+    const tl = gsap.timeline({
+      onComplete: () => overlay.classList.remove('is-open')
+    });
+    tl.to([leftLinks, rightLinks, btmLinks], { opacity: 0, duration: 0.2, ease: 'power1.in' })
+    tl.to(leftLinks,  { x: -60, duration: 0 })
+    tl.to(rightLinks, { x:  60, duration: 0 })
+    tl.to(overlay, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.1')
+    tl.to([headerContact, menuBtn], { opacity: 1, duration: 0.2, ease: 'power1.out' });
+  }
+
+  document.getElementById('site-logo').addEventListener('click', () => {
+    if (overlay.classList.contains('is-open')) {
+      resetImageZIndex();
+      closeMenu();
+    }
+  });
+
+  menuBtn.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeMenu();
+  });
+</script>
+
+</body>
+</html>
